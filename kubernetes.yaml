@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: lab-aro
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-nest-test-aro
+  namespace: lab-aro
+  labels:
+    app: backend-nest-test-aro
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend-nest-test-aro
+  template:
+    metadata:
+      labels:
+        app: backend-nest-test-aro
+    spec:
+      containers:
+      - name: backend-nest-test-aro
+        image: us-west1-docker.pkg.dev/lab-agibiz/docker-repository/backend-nest-test-aro
+        imagePullPolicy: Always
