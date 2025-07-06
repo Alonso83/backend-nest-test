@@ -24,3 +24,39 @@ spec:
       - name: backend-nest-test-aro
         image: us-west1-docker.pkg.dev/lab-agibiz/docker-repository/backend-nest-test-aro
         imagePullPolicy: Always
+      imagePullSecrets:
+      - name: regcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-nest-test-aro-svc
+  namespace: lab-aro
+  labels:
+    app: backend-nest-test-aro-svc
+spec:
+  selector:
+    app: backend-nest-test-aro
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 4010
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-backend-nest-test-aro
+  namespace: lab-aro
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: aro.devops.cl
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: backend-nest-test-aro-svc
+            port:
+              number: 80
