@@ -4,6 +4,9 @@ pipeline {
 
     environment {
         NPM_CONFIG_CACHE = "${WORKSPACE}/.npm"
+        dockerImage = "us-west1-docker.pkg.dev/lab-agibiz/docker-repository"
+        registry = "https://us-west1-docker.pkg.dev"
+        registryCredentials = 'gcp-registry-aro'
     }
     stages {
         stage ("saludo al profesor") {
@@ -32,6 +35,17 @@ pipeline {
                 stage ("build de la aplicacion") {
                     steps {
                         sh 'npm run build'
+                    }
+                }
+            }
+        }
+        stage ("build y push img docker") {
+            steps {
+                script {
+                    docker.withRegistry("${registry}", registryCredentials) {
+                        sh "docker build -t backend-nest-test-aro ."
+                        sh "docker tag backend-nest-test-aro ${dockerImage}/backend-nest-test-aro"
+                        sh "docker push ${dockerImage}/backend-nest-test-aro"
                     }
                 }
             }
