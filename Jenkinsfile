@@ -60,9 +60,15 @@ pipeline {
                 }
             }
             steps {
-                withKubeConfig([credentials: 'gcp-kubeconfig']) {
+                withKubeConfig([credentialsId: 'gcp-kubeconfig']) {
                     sh "kubectl -n lab-aro set image deployments/backend-nest-test-aro backend-nest-test-aro=${dockerImage}/backend-nest-test-aro:${BUILD_NUMBER}"
                 }
+            }
+        }
+
+        stage ("Paso de finalización") {
+            steps {
+                sh 'echo "proceso finalizado"'
             }
         }
     }
