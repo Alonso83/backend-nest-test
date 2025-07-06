@@ -45,8 +45,23 @@ pipeline {
                     docker.withRegistry("${registry}", registryCredentials) {
                         sh "docker build -t backend-nest-test-aro ."
                         sh "docker tag backend-nest-test-aro ${dockerImage}/backend-nest-test-aro"
+                        sh "docker tag backend-nest-test-aro ${dockerImage}/backend-nest-test-aro:${BUILD_NUMBER}"
                         sh "docker push ${dockerImage}/backend-nest-test-aro"
+                        sh "docker push ${dockerImage}/backend-nest-test-aro:${BUILD_NUMBER}"
                     }
+                }
+            }
+        }
+        stage ("ejecución de actualización kubernetes") {
+            agent {
+                docker {
+                    image : 'alpine/k8s:1.30.2'
+                    reuseNode true
+                }
+            }
+            steps {
+                withKubeConfig([credentials: 'gcp-kubeconfig']) {
+                    sh "kubectl -n lab-aro set image deployments/backend-nest-test-aro backend-nest-test-aro=${dockerImage}/backend-nest-test-aro:${BUILD_NUMBER}"
                 }
             }
         }
